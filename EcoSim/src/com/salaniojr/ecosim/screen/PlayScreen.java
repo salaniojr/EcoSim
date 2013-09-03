@@ -4,24 +4,38 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.salaniojr.ecosim.Carnivore;
 
 public class PlayScreen implements Screen {
 	
 	private TiledMap map;
 	private OrthogonalTiledMapRenderer renderer;
 	private OrthographicCamera camera;
+	
+	private Carnivore carnivore;
 
 	@Override
 	public void render(float delta) {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
+		TiledMapTileLayer mapLayer = (TiledMapTileLayer) map.getLayers().get(0);
+		
+//		mapLayer.setVisible(false);
+		
 		renderer.setView(camera);
 		renderer.render();
+		
+		renderer.getSpriteBatch().begin();
+		carnivore.draw(renderer.getSpriteBatch());
+		renderer.getSpriteBatch().end();
 	}
 
 	@Override
@@ -38,11 +52,12 @@ public class PlayScreen implements Screen {
 		
 		renderer = new OrthogonalTiledMapRenderer(map);
 		
-		TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get(0);
-		
 		camera = new OrthographicCamera();
-		camera.position.x = layer.getWidth() * layer.getTileWidth() / 2;
-		camera.position.y = layer.getHeight() * layer.getTileHeight() / 2;
+		camera.position.x = Gdx.graphics.getWidth()/2;
+		camera.position.y = Gdx.graphics.getHeight()/2;
+		
+		Texture texture = new Texture(Gdx.files.internal("data/carnivore.png"));
+		carnivore = new Carnivore();
 	}
 
 	@Override
