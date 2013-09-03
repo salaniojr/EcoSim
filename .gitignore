@@ -1,0 +1,7 @@
+org.eclipse.jdt.core.prefs
+
+EcoSim/bin
+EcoSim/.settings
+EcoSim-html/.settings
+EcoSim-desktop/bin/data
+EcoSim-android/bin

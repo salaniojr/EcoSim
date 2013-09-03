@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="50" height="50" tilewidth="16" tileheight="16">
+ <tileset firstgid="1" name="Pokemon" tilewidth="16" tileheight="16" spacing="1" margin="1">
+  <tileoffset x="1" y="1"/>
+  <image source="tiles.png" width="343" height="410"/>
+ </tileset>
+ <layer name="Camada de Tiles 1" width="50" height="50">
+  <data encoding="base64" compression="zlib">
+   eJzt1k0KwjAUBOBcoMuu1aVrdZ+duvfnBC7UE7hQbyD+3KB6UKdgIESwlOa1LziLD1Ja2hleAs2NMTkREREREVGgB30YKMjSxAjGMFGQpYkpzGCuIAv9D+utM6FvLGEFa6H3D4PrTKjLFnawb6GHFexxhBOchTo4EvO4eOsb3OERPHON1CFcx+xRwLPCK2IPa77PSQrC/RR2KuexUZCzTg/HespnDgpy1u3QdaZYe8rNYPHRdcYm80ipQ1WPFM6238Pv49/TfrZ/kfoPaTt/yh1cj64zEBERERFp9QZh4OAL
+  </data>
+ </layer>
+</map>
