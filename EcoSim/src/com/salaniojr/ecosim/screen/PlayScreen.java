@@ -5,13 +5,11 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.salaniojr.ecosim.Carnivore;
+import com.salaniojr.ecosim.entity.Carnivore;
 
 public class PlayScreen implements Screen {
 	
@@ -29,7 +27,26 @@ public class PlayScreen implements Screen {
 		TiledMapTileLayer mapLayer = (TiledMapTileLayer) map.getLayers().get(0);
 		
 //		mapLayer.setVisible(false);
+		carnivore.update(delta);
 		
+		if (carnivore.getY() > Gdx.graphics.getHeight()-24) {
+			carnivore.setY(Gdx.graphics.getHeight()-24);
+		}
+		
+		if (carnivore.getY() < 0) {
+			carnivore.setY(0);
+		}
+		
+		if (carnivore.getX() > Gdx.graphics.getWidth()-carnivore.getHeight()) {
+			carnivore.setX(Gdx.graphics.getWidth() - carnivore.getWidth());
+		}
+		
+		if (carnivore.getX() < 0) {
+			carnivore.setX(0);
+		}
+		
+		System.out.println(carnivore.getX());
+
 		renderer.setView(camera);
 		renderer.render();
 		
@@ -54,10 +71,10 @@ public class PlayScreen implements Screen {
 		
 		camera = new OrthographicCamera();
 		camera.position.x = Gdx.graphics.getWidth()/2;
-		camera.position.y = Gdx.graphics.getHeight()/2;
+		camera.position.y = 284;
 		
-		Texture texture = new Texture(Gdx.files.internal("data/carnivore.png"));
 		carnivore = new Carnivore();
+		Gdx.input.setInputProcessor(carnivore);
 	}
 
 	@Override
