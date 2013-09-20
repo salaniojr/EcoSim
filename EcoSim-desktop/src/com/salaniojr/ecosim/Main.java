@@ -8,8 +8,8 @@ public class Main {
 		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
 		cfg.title = "EcoSim";
 		cfg.useGL20 = true;
-		cfg.width = 800;
-		cfg.height = 600;
+		cfg.width = 480;
+		cfg.height = 320;
 		
 		new LwjglApplication(new EcoSim(), cfg);
 	}

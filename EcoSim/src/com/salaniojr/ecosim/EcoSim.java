@@ -1,11 +1,9 @@
 package com.salaniojr.ecosim;
 
 import com.badlogic.gdx.Game;
-import com.salaniojr.ecosim.screen.PlayScreen;
+import com.salaniojr.ecosim.screen.play.PlayScreen;
 
 public class EcoSim extends Game {
-	
-	
 	
 	@Override
 	public void create() {		
