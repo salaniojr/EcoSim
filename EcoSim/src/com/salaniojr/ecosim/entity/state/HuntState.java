@@ -12,7 +12,14 @@ public class HuntState implements State {
 
 	@Override
 	public void update(float delta) {
-		entity.searchFoodNearby();
+		if (entity.isHungry()) {
+			entity.searchFoodNearby();
+		} else {
+			entity.idle();
+		}
+			
+		
+		
 		System.out.println("Now hunting!");
 	}
 

@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import aurelienribon.tweenengine.Tween;
+import aurelienribon.tweenengine.TweenManager;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
@@ -21,6 +24,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.salaniojr.ecosim.entity.Carnivore;
 import com.salaniojr.ecosim.entity.Entity;
+import com.salaniojr.ecosim.entity.EntityTweenAccessor;
 import com.salaniojr.ecosim.entity.Herbivore;
 
 public class PlayScreen implements Screen {
@@ -35,8 +39,13 @@ public class PlayScreen implements Screen {
 	
 	private List<Entity> entities;
 	
+	private TweenManager tweenManager;
+	
 	@Override
 	public void show() {
+		
+		tweenManager = ServiceLocator.locateTweenManager();
+		
 		setFonts();
 
 		float w = Gdx.graphics.getWidth();
@@ -56,6 +65,8 @@ public class PlayScreen implements Screen {
 	}
 	
 	private void update(float delta) {
+		tweenManager.update(delta);
+		
 		for (Entity entity : entities) {
 			entity.update(delta);
 		}
@@ -86,14 +97,34 @@ public class PlayScreen implements Screen {
 	}
 
 	private void setupEntities() {
+		Tween.registerAccessor(Entity.class, new EntityTweenAccessor());
+		
 		entities = new ArrayList<Entity>();
 		
 		Entity carn1 = new Carnivore();
+		carn1.setPosition(1 * 16, 1 * 16);
+		Entity carn2 = new Carnivore();
+		carn2.setPosition(5 * 16, 1 * 16);
+		Entity carn3 = new Carnivore();
+		carn3.setPosition(1 * 16, 8 * 16);
+		Entity carn4 = new Carnivore();
+		carn4.setPosition(22 * 16, 20 * 16);
+		Entity carn5 = new Carnivore();
+		carn5.setPosition(10 * 16, 15 * 16);
+		Entity carn6 = new Carnivore();
+		carn6.setPosition(20 * 16, 18 * 16);
+		Entity carn7 = new Carnivore();
+		carn7.setPosition(25 * 16, 8 * 16);
 		
 		Entity herb1 = new Herbivore();
-		herb1.setPosition(1 * 16, 1 * 16);
 		
 		entities.add(carn1);
+		entities.add(carn2);
+//		entities.add(carn3);
+//		entities.add(carn4);
+//		entities.add(carn5);
+//		entities.add(carn6);
+//		entities.add(carn7);
 		entities.add(herb1);
 	}
 
@@ -127,13 +158,9 @@ public class PlayScreen implements Screen {
 			}
 		}
 		
-//		Cell carnivoreCell = layer.getCell((int) carnivore.getX(), (int) carnivore.getY());
-//		MapProperties properties = carnivoreCell.getTile().getProperties();
-//		properties.put("has", "carnivore");
-		
 		layers.add(layer);
 		
-		MapLocator.provide(map);
+		ServiceLocator.provide(map);
 	}
 
 	private void setFonts() {

@@ -1,9 +1,16 @@
 package com.salaniojr.ecosim.entity;
 
+import java.util.Random;
+
+import aurelienribon.tweenengine.BaseTween;
+import aurelienribon.tweenengine.Tween;
+import aurelienribon.tweenengine.TweenCallback;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
@@ -11,10 +18,13 @@ import com.badlogic.gdx.math.Vector2;
 import com.salaniojr.ecosim.entity.state.HuntState;
 import com.salaniojr.ecosim.entity.state.IdleState;
 import com.salaniojr.ecosim.entity.state.State;
-import com.salaniojr.ecosim.screen.play.MapLocator;
+import com.salaniojr.ecosim.screen.play.ServiceLocator;
 
 public abstract class Entity {
+	
+	private static int current_id = 0;
 
+	protected int id;
 	protected Sprite sprite;
 	protected int hunger;
 	public static final int HUNGER_MAX = 8;
@@ -28,7 +38,10 @@ public abstract class Entity {
 	protected AnimalType type;
 	private boolean dead;
 
+	private boolean moving;
+
 	public Entity(String texturePath, AnimalType type) {
+		id = current_id++;
 		sprite = new Sprite(new Texture(Gdx.files.internal(texturePath)));
 		state = new IdleState(this);
 
@@ -44,6 +57,8 @@ public abstract class Entity {
 		for (int i = 0; i < neighbors.length; i++) {
 			neighbors[i] = new Vector2();
 		}
+		
+		updateNeighbors();
 	}
 
 	public float getX() {
@@ -67,29 +82,13 @@ public abstract class Entity {
 		updateNeighbors();
 
 		updateWorldInfo();
-
-		if (sprite.getY() > Gdx.graphics.getHeight() - sprite.getHeight()) {
-			sprite.setY(Gdx.graphics.getHeight() - sprite.getHeight());
-		}
-
-		if (sprite.getY() < 0) {
-			sprite.setY(0);
-		}
-
-		if (sprite.getX() > Gdx.graphics.getWidth() - sprite.getHeight()) {
-			sprite.setX(Gdx.graphics.getWidth() - sprite.getWidth());
-		}
-
-		if (sprite.getX() < 0) {
-			sprite.setX(0);
-		}
 	}
 
 	private void checkActions() {
-		TiledMap map = MapLocator.locate();
+		TiledMap map = ServiceLocator.locate();
 		TiledMapTileLayer mapLayer = (TiledMapTileLayer) map.getLayers().get(0);
 
-		Cell cell = mapLayer.getCell((int) (getX() == 0? 1 : getX() / sprite.getWidth() - (getX() == 0? -1 : 0)), (int) (getY() == 0? 1 : getY() / sprite.getHeight() - (getY() == 0? -1 : 0)));
+		Cell cell = mapLayer.getCell(getXinCellCoord(), getYInCellCoord());
 		Boolean kill = (Boolean) cell.getTile().getProperties().get("kill");
 		
 		if (kill != null) {
@@ -99,11 +98,12 @@ public abstract class Entity {
 
 	private void die() {
 		dead = true;
-		TiledMap map = MapLocator.locate();
+		TiledMap map = ServiceLocator.locate();
 		TiledMapTileLayer mapLayer = (TiledMapTileLayer) map.getLayers().get(0);
 
-		Cell cell = mapLayer.getCell((int) ((getX() == 0? 1 : getX() / sprite.getWidth()) - (getX() == 0? -1 : 0)), (int) ((getY() == 0? 1 : getY() / sprite.getHeight()) - (getY() == 0? -1 : 0)));
+		Cell cell = mapLayer.getCell(getXinCellCoord(), getYInCellCoord());
 		cell.getTile().getProperties().remove("contains");
+		cell.getTile().getProperties().remove("kill");
 	}
 
 	private void updateNeighbors() {
@@ -119,12 +119,28 @@ public abstract class Entity {
 	}
 
 	private void updateWorldInfo() {
-		TiledMap map = MapLocator.locate();
+		TiledMap map = ServiceLocator.locate();
 		TiledMapTileLayer mapLayer = (TiledMapTileLayer) map.getLayers().get(0);
 
-		Cell cell = mapLayer.getCell((int) ((getX() == 0? 1 : getX() / sprite.getWidth()) - (getX() == 0? -1 : 0)), (int) ((getY() == 0? 1 : getY() / sprite.getHeight()) - (getY() == 0? -1 : 0)));
+		Cell cell = mapLayer.getCell(getXinCellCoord(), getYInCellCoord());
 		cell.getTile().getProperties().remove("contains");
 		cell.getTile().getProperties().put("contains", type);
+	}
+
+	protected int getYInCellCoord() {
+		return (int) ((getY() == 0? 1 : getY() / sprite.getHeight()) - (getY() == 0? 1 : 0));
+	}
+
+	protected int getXinCellCoord() {
+		return (int) ((getX() == 0? 1 : getX() / sprite.getWidth()) - (getX() == 0? 1 : 0));
+	}
+	
+	protected int getYInCellCoord(float y) {
+		return (int) ((y == 0? 1 : y / sprite.getHeight()) - (y == 0? 1 : 0));
+	}
+
+	protected int getXinCellCoord(float x) {
+		return (int) ((x == 0? 1 : x / sprite.getWidth()) - (x == 0? 1 : 0));
 	}
 
 	private void updateHunger(float delta) {
@@ -134,7 +150,7 @@ public abstract class Entity {
 			hunger++;
 			hungerTime = 0;
 
-			System.out.println("hunger update: " + hunger);
+			System.out.println("hunger update [" + type + "] : " + hunger);
 		}
 	}
 
@@ -163,5 +179,66 @@ public abstract class Entity {
 
 	public void setPosition(float x, float y) {
 		sprite.setPosition(x, y);
+	}
+
+	public void idle() {
+		state = new IdleState(this);
+	}
+
+	public void move() {
+		if (moving) {
+			return;
+		}
+		
+		TiledMap map = ServiceLocator.locate();
+		TiledMapTileLayer mapLayer = (TiledMapTileLayer) map.getLayers().get(0);
+		
+		Cell cell = null;
+		Vector2 newPosition = null;
+		
+		while (cell == null) {
+			newPosition = chooseNextMovePosition();
+			cell = mapLayer.getCell(getXinCellCoord(newPosition.x), getYInCellCoord(newPosition.y));
+			
+			if (cell != null) {
+				MapProperties properties = cell.getTile().getProperties();
+				if (properties.containsKey("contains")) {
+					cell = null;
+				}
+			}
+		}
+		
+		Cell myCell = mapLayer.getCell(getXinCellCoord(), getYInCellCoord());
+		myCell.getTile().getProperties().clear();
+		
+		moveTo(newPosition);
+	}
+
+	private void moveTo(Vector2 newPosition) {
+		moving = true;
+		
+//		Tween.set(this, EntityTweenAccessor.MOVEX).target(getX()).start(ServiceLocator.locateTweenManager());
+		Tween.to(this, EntityTweenAccessor.MOVEX, 0.75f).target(newPosition.x).start(ServiceLocator.locateTweenManager());
+		
+//		Tween.set(this, EntityTweenAccessor.MOVEY).target(getY()).start(ServiceLocator.locateTweenManager());
+		Tween.to(this, EntityTweenAccessor.MOVEY, 0.75f).target(newPosition.y).start(ServiceLocator.locateTweenManager()).setCallback(new TweenCallback() {
+			@Override
+			public void onEvent(int type, BaseTween<?> source) {
+				if (type == TweenCallback.COMPLETE) {
+					moving = false;
+				}
+			}
+		});
+	}
+
+	private Vector2 chooseNextMovePosition() {
+		Random random = new Random();
+		int index = random.nextInt(8);
+		
+		return neighbors[index];
+	}
+
+	protected void moveToFoodNeighbor(int neighborIndex) {
+		moveTo(neighbors[neighborIndex]);
 	}
 }

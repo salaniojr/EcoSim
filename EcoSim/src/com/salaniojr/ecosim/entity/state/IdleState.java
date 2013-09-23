@@ -13,6 +13,8 @@ public class IdleState implements State {
 	public void update(float delta) {
 		if (carnivore.isHungry()) {
 			carnivore.hunt();
+		} else {
+			carnivore.move();
 		}
 	}
 }
