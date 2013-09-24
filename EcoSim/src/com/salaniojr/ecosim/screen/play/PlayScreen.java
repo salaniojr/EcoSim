@@ -17,6 +17,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapLayers;
+import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
@@ -90,6 +91,23 @@ public class PlayScreen implements Screen {
 		for (Entity entity : entities) {
 			entity.draw(spriteBatch);
 		}
+		
+		TiledMap map = ServiceLocator.locate();
+		TiledMapTileLayer mapLayer = (TiledMapTileLayer) map.getLayers().get(0);
+		
+		int contCount = 0;
+		for (int i = 0; i < mapLayer.getWidth(); i++) {
+			for (int j = 0; j < mapLayer.getHeight(); j++) {
+				Cell cell = mapLayer.getCell(i, j);
+				MapProperties properties = cell.getTile().getProperties();
+				if (properties.containsKey("contains")) {
+					contCount++;
+				}
+			}
+		}
+		
+		System.out.println("Amount: " + contCount);
+		
 	}
 
 	private void drawHud(SpriteBatch spriteBatch) {
@@ -117,15 +135,36 @@ public class PlayScreen implements Screen {
 		carn7.setPosition(25 * 16, 8 * 16);
 		
 		Entity herb1 = new Herbivore();
+		Entity herb2 = new Herbivore();
+		herb2.setPosition(14 * 16, 17 * 16);
+		Entity herb3 = new Herbivore();
+		herb3.setPosition(8 * 16, 9 * 16);
+		Entity herb4 = new Herbivore();
+		herb4.setPosition(2 * 16, 13 * 16);
+		Entity herb5 = new Herbivore();
+		herb5.setPosition(27 * 16, 25 * 16);
+		Entity herb6 = new Herbivore();
+		herb6.setPosition(18 * 16, 19 * 16);
+		Entity herb7 = new Herbivore();
+		herb7.setPosition(12 * 16, 10 * 16);
 		
 		entities.add(carn1);
 		entities.add(carn2);
-//		entities.add(carn3);
-//		entities.add(carn4);
-//		entities.add(carn5);
-//		entities.add(carn6);
-//		entities.add(carn7);
+		entities.add(carn3);
+		entities.add(carn4);
+		entities.add(carn5);
+		entities.add(carn6);
+		entities.add(carn7);
+		
 		entities.add(herb1);
+		entities.add(herb2);
+		entities.add(herb3);
+		entities.add(herb4);
+		entities.add(herb5);
+		entities.add(herb6);
+		entities.add(herb7);
+		
+		
 	}
 
 	private void setupCamera(float w, float h) {

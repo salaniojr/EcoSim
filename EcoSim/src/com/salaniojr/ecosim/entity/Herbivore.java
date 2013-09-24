@@ -9,7 +9,7 @@ public class Herbivore extends Entity {
 
 	@Override
 	public void searchFoodNearby() {
-		
+		move();
 	}
 
 }
