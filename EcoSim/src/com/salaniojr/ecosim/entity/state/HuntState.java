@@ -17,10 +17,6 @@ public class HuntState implements State {
 		} else {
 			entity.idle();
 		}
-			
-		
-		
-		System.out.println("Now hunting!");
 	}
 
 }

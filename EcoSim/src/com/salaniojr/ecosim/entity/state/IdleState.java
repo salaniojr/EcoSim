@@ -1,20 +1,44 @@
 package com.salaniojr.ecosim.entity.state;
 
+import java.util.Random;
+
 import com.salaniojr.ecosim.entity.Entity;
 
 public class IdleState implements State {
-	private Entity carnivore;
+	private Entity entity;
+	private boolean stay;
+	private float stayAmount;
 
 	public IdleState(Entity carnivore) {
-		this.carnivore = carnivore;
+		this.entity = carnivore;
 	}
 
 	@Override
 	public void update(float delta) {
-		if (carnivore.isHungry()) {
-			carnivore.hunt();
+		if (entity.isHungry()) {
+			entity.hunt();
 		} else {
-			carnivore.move();
+			if (stay) {
+				stayAmount -= delta;
+				if (stayAmount <= 0) {
+					stay = false;
+					stayAmount = 0;
+				}
+				
+				return;
+			}
+			
+			Random random = new Random();
+			int moveOrNot = random.nextInt(2);
+			
+			if (moveOrNot == 1) {
+				entity.move();
+				System.out.println("MOVING");
+			} else {
+				stayAmount = new Random().nextInt(5) + 1;
+				stay = true;
+				System.out.println("STAY");
+			}
 		}
 	}
 }

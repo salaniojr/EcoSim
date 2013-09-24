@@ -32,7 +32,7 @@ public abstract class Entity {
 	public static final int HUNGER_MAX = 8;
 	public static final int HUNGER_MIN = 0;
 	protected State state;
-	private float hungerIncreaseTime = 2f;
+	private float hungerIncreaseTime = 8f;
 	private float hungerTime = 0;
 
 	protected Vector2[] neighbors;
@@ -52,7 +52,7 @@ public abstract class Entity {
 
 		initNeighbors();
 
-		hunger = HUNGER_MIN;
+		hunger = new Random().nextInt(HUNGER_MAX - 3);
 	}
 
 	private void initNeighbors() {
@@ -70,8 +70,11 @@ public abstract class Entity {
 	}
 
 	public void update(float delta) {
-		// System.out.println("update [" + type + "]");
 		checkActions();
+		
+		if (hunger == HUNGER_MAX) {
+			die();
+		}
 
 		if (dead) {
 			return;
@@ -99,8 +102,7 @@ public abstract class Entity {
 		TiledMapTileLayer mapLayer = (TiledMapTileLayer) map.getLayers().get(0);
 
 		Cell cell = mapLayer.getCell(getXinCellCoord(), getYInCellCoord());
-		cell.getTile().getProperties().remove("contains");
-		cell.getTile().getProperties().remove("kill");
+		cell.getTile().getProperties().clear();
 	}
 
 	private void updateNeighbors() {
@@ -137,8 +139,6 @@ public abstract class Entity {
 		if (hungerTime >= hungerIncreaseTime) {
 			hunger++;
 			hungerTime = 0;
-
-			// System.out.println("hunger update [" + type + "] : " + hunger);
 		}
 	}
 
@@ -191,8 +191,11 @@ public abstract class Entity {
 		cell.getTile().getProperties().clear();
 
 		moving = true;
+		
+		Random random = new Random();
+		int velocity = random.nextInt(3) + 1;
 
-		Tween.to(this, EntityTweenAccessor.MOVEXY, 1f).target(newPosition.x, newPosition.y)
+		Tween.to(this, EntityTweenAccessor.MOVEXY, velocity).target(newPosition.x, newPosition.y)
 				.start(ServiceLocator.locateTweenManager()).setCallback(new TweenCallback() {
 					@Override
 					public void onEvent(int eventType, BaseTween<?> source) {
