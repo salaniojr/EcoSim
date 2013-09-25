@@ -12,7 +12,8 @@ public class ServiceLocator {
 		ServiceLocator.map = map;
 	}
 	
-	public static TiledMap locate() {
+	public static TiledMap locateMap() {
+		assert map != null;
 		return map;
 	}
 	

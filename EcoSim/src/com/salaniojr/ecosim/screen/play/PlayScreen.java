@@ -92,7 +92,7 @@ public class PlayScreen implements Screen {
 			entity.draw(spriteBatch);
 		}
 		
-		TiledMap map = ServiceLocator.locate();
+		TiledMap map = ServiceLocator.locateMap();
 		TiledMapTileLayer mapLayer = (TiledMapTileLayer) map.getLayers().get(0);
 		
 		int contCount = 0;
@@ -126,7 +126,7 @@ public class PlayScreen implements Screen {
 		Entity carn3 = new Carnivore();
 		carn3.setPosition(1 * 16, 8 * 16);
 		Entity carn4 = new Carnivore();
-		carn4.setPosition(22 * 16, 20 * 16);
+		carn4.setPosition(22 * 16, 19 * 16);
 		Entity carn5 = new Carnivore();
 		carn5.setPosition(10 * 16, 15 * 16);
 		Entity carn6 = new Carnivore();
@@ -146,7 +146,18 @@ public class PlayScreen implements Screen {
 		Entity herb6 = new Herbivore();
 		herb6.setPosition(18 * 16, 19 * 16);
 		Entity herb7 = new Herbivore();
-		herb7.setPosition(12 * 16, 10 * 16);
+		herb7.setPosition(13 * 16, 10 * 16);
+		Entity herb8 = new Herbivore();
+		herb8.setPosition(17 * 16, 22 * 16);
+		Entity herb9 = new Herbivore();
+		herb9.setPosition(22 * 16, 17 * 16);
+		Entity herb10 = new Herbivore();
+		herb10.setPosition(23 * 16, 15 * 16);
+		Entity herb11 = new Herbivore();
+		herb11.setPosition(29 * 16, 12 * 16);
+		Entity herb12 = new Herbivore();
+		herb12.setPosition(3 * 16, 5 * 16);
+		
 		
 		entities.add(carn1);
 		entities.add(carn2);
@@ -163,7 +174,11 @@ public class PlayScreen implements Screen {
 		entities.add(herb5);
 		entities.add(herb6);
 		entities.add(herb7);
-		
+		entities.add(herb8);
+		entities.add(herb9);
+		entities.add(herb10);
+		entities.add(herb11);
+		entities.add(herb12);
 		
 	}
 

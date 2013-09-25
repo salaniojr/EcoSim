@@ -10,6 +10,7 @@ import aurelienribon.tweenengine.TweenCallback;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapProperties;
@@ -42,9 +43,13 @@ public abstract class Entity {
 
 	private boolean moving;
 
+	private BitmapFont hungerText;
+
 	public Entity(String texturePath, AnimalType type) {
 		id = current_id++;
 		sprite = new Sprite(new Texture(Gdx.files.internal(texturePath)));
+		hungerText = new BitmapFont();
+		hungerText.scale(0.01f);
 		state = new IdleState(this);
 
 		this.type = type;
@@ -71,7 +76,7 @@ public abstract class Entity {
 
 	public void update(float delta) {
 		checkActions();
-		
+
 		if (hunger == HUNGER_MAX) {
 			die();
 		}
@@ -85,7 +90,7 @@ public abstract class Entity {
 	}
 
 	private void checkActions() {
-		TiledMap map = ServiceLocator.locate();
+		TiledMap map = ServiceLocator.locateMap();
 		TiledMapTileLayer mapLayer = (TiledMapTileLayer) map.getLayers().get(0);
 
 		Cell cell = mapLayer.getCell(getXinCellCoord(), getYInCellCoord());
@@ -98,7 +103,7 @@ public abstract class Entity {
 
 	private void die() {
 		dead = true;
-		TiledMap map = ServiceLocator.locate();
+		TiledMap map = ServiceLocator.locateMap();
 		TiledMapTileLayer mapLayer = (TiledMapTileLayer) map.getLayers().get(0);
 
 		Cell cell = mapLayer.getCell(getXinCellCoord(), getYInCellCoord());
@@ -147,6 +152,8 @@ public abstract class Entity {
 			return;
 		}
 		sprite.draw(spriteBatch);
+
+		hungerText.draw(spriteBatch, "h: " + hunger, getX(), getY() + sprite.getHeight() / 2);
 	}
 
 	public boolean isHungry() {
@@ -185,13 +192,16 @@ public abstract class Entity {
 	}
 
 	private void moveTo(Vector2 newPosition) {
-		TiledMap map = ServiceLocator.locate();
+		TiledMap map = ServiceLocator.locateMap();
 		TiledMapTileLayer mapLayer = (TiledMapTileLayer) map.getLayers().get(0);
 		Cell cell = mapLayer.getCell(getXinCellCoord(), getYInCellCoord());
 		cell.getTile().getProperties().clear();
 
 		moving = true;
-		
+
+		cell = mapLayer.getCell(getXinCellCoord(newPosition.x), getYInCellCoord(newPosition.y));
+		cell.getTile().getProperties().put("willcontain", type);
+
 		Random random = new Random();
 		int velocity = random.nextInt(3) + 1;
 
@@ -200,11 +210,12 @@ public abstract class Entity {
 					@Override
 					public void onEvent(int eventType, BaseTween<?> source) {
 						if (eventType == TweenCallback.COMPLETE) {
-							TiledMap map = ServiceLocator.locate();
+							TiledMap map = ServiceLocator.locateMap();
 							TiledMapTileLayer mapLayer = (TiledMapTileLayer) map.getLayers().get(0);
 							Cell cell = mapLayer.getCell(getXinCellCoord(), getYInCellCoord());
+							cell.getTile().getProperties().clear();
 							cell.getTile().getProperties().put("contains", type);
-							
+
 							moving = false;
 							updateNeighbors();
 						}
@@ -215,7 +226,7 @@ public abstract class Entity {
 	private Vector2 chooseNextMovePosition() {
 		List<Vector2> possiblePositions = new ArrayList<Vector2>();
 
-		TiledMap map = ServiceLocator.locate();
+		TiledMap map = ServiceLocator.locateMap();
 		TiledMapTileLayer mapLayer = (TiledMapTileLayer) map.getLayers().get(0);
 
 		for (int i = 0; i < neighbors.length; i++) {
@@ -227,7 +238,7 @@ public abstract class Entity {
 			Cell cell = mapLayer.getCell(getXinCellCoord(neighbors[i].x), getYInCellCoord(neighbors[i].y));
 			MapProperties properties = cell.getTile().getProperties();
 
-			if (properties.containsKey("contains")) {
+			if (properties.containsKey("contains") || properties.containsKey("willcontain")) {
 				continue;
 			}
 

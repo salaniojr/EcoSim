@@ -14,7 +14,7 @@ public class Carnivore extends Entity {
 
 	@Override
 	public void searchFoodNearby() {
-		TiledMap map = ServiceLocator.locate();
+		TiledMap map = ServiceLocator.locateMap();
 		TiledMapTileLayer mapLayer = (TiledMapTileLayer) map.getLayers().get(0);
 
 		for (int i = 0; i < neighbors.length; i++) {
