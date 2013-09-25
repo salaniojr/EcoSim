@@ -106,8 +106,6 @@ public class PlayScreen implements Screen {
 			}
 		}
 		
-		System.out.println("Amount: " + contCount);
-		
 	}
 
 	private void drawHud(SpriteBatch spriteBatch) {

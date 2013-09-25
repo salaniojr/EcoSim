@@ -10,5 +10,6 @@
 	<classpathentry exported="true" kind="lib" path="/EcoSim/libs/tween-engine-api.jar" sourcepath="/EcoSim/libs/tween-engine-api-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="/EcoSim/libs/bodyeditor-loader.jar" sourcepath="/EcoSim/libs/bodyeditor-loader-sources.jar"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
+	<classpathentry kind="lib" path="libs/gdx-freetype.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

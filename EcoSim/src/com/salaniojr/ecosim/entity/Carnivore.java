@@ -28,13 +28,11 @@ public class Carnivore extends Entity {
 
 			if (animalType != null) {
 				if (animalType.equals(AnimalType.HERBIVORE)) {
-					System.out.println("sending kill");
 					hunger = HUNGER_MIN;
 					cell.getTile().getProperties().put("kill", true);
 					
 					moveToFoodNeighbor(i);
 				} else {
-					System.out.println(animalType);
 				}
 			} else {
 				move();

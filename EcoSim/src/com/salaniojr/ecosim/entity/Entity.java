@@ -9,6 +9,7 @@ import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenCallback;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -45,11 +46,11 @@ public abstract class Entity {
 
 	private BitmapFont hungerText;
 
+	private boolean dying;
+
 	public Entity(String texturePath, AnimalType type) {
 		id = current_id++;
 		sprite = new Sprite(new Texture(Gdx.files.internal(texturePath)));
-		hungerText = new BitmapFont();
-		hungerText.scale(0.01f);
 		state = new IdleState(this);
 
 		this.type = type;
@@ -57,7 +58,10 @@ public abstract class Entity {
 
 		initNeighbors();
 
-		hunger = new Random().nextInt(HUNGER_MAX - 3);
+		hungerText = ServiceLocator.locateFont(12);
+		hungerText.setColor(Color.BLUE);
+
+		hunger = new Random().nextInt(HUNGER_MAX);
 	}
 
 	private void initNeighbors() {
@@ -73,11 +77,20 @@ public abstract class Entity {
 	public float getY() {
 		return sprite.getY();
 	}
+	
+	public float getAlpha() {
+		return sprite.getColor().a;
+	}
+
+	public void setAlpha(float value) {
+		sprite.setColor(sprite.getColor().r, sprite.getColor().g, sprite.getColor().b, value);
+		hungerText.setColor(hungerText.getColor().r, hungerText.getColor().g, hungerText.getColor().b, value);
+	}
 
 	public void update(float delta) {
 		checkActions();
 
-		if (hunger == HUNGER_MAX) {
+		if (hunger == HUNGER_MAX && !dying) {
 			die();
 		}
 
@@ -102,12 +115,27 @@ public abstract class Entity {
 	}
 
 	private void die() {
-		dead = true;
+		System.out.println("DYING NOW");
+		dying = true;
 		TiledMap map = ServiceLocator.locateMap();
 		TiledMapTileLayer mapLayer = (TiledMapTileLayer) map.getLayers().get(0);
 
 		Cell cell = mapLayer.getCell(getXinCellCoord(), getYInCellCoord());
 		cell.getTile().getProperties().clear();
+
+		animateDeath();
+	}
+
+	private void animateDeath() {
+		Tween.to(this, EntityTweenAccessor.FADE, 2f).target(0).start(ServiceLocator.locateTweenManager()).setCallback(new TweenCallback() {
+
+			@Override
+			public void onEvent(int type, BaseTween<?> source) {
+				if (type == TweenCallback.COMPLETE) {
+					dead = true;
+				}
+			}
+		});
 	}
 
 	private void updateNeighbors() {
@@ -153,7 +181,11 @@ public abstract class Entity {
 		}
 		sprite.draw(spriteBatch);
 
-		hungerText.draw(spriteBatch, "h: " + hunger, getX(), getY() + sprite.getHeight() / 2);
+		if (hunger == HUNGER_MAX - 1) {
+			hungerText.setColor(Color.MAGENTA);
+		}
+
+		hungerText.draw(spriteBatch, hunger + "", getX() + 7, getY() + 11);
 	}
 
 	public boolean isHungry() {
@@ -182,7 +214,7 @@ public abstract class Entity {
 	}
 
 	public void move() {
-		if (moving) {
+		if (moving || dying) {
 			return;
 		}
 
@@ -205,8 +237,8 @@ public abstract class Entity {
 		Random random = new Random();
 		int velocity = random.nextInt(3) + 1;
 
-		Tween.to(this, EntityTweenAccessor.MOVEXY, velocity).target(newPosition.x, newPosition.y)
-				.start(ServiceLocator.locateTweenManager()).setCallback(new TweenCallback() {
+		Tween.to(this, EntityTweenAccessor.MOVEXY, velocity).target(newPosition.x, newPosition.y).start(ServiceLocator.locateTweenManager())
+				.setCallback(new TweenCallback() {
 					@Override
 					public void onEvent(int eventType, BaseTween<?> source) {
 						if (eventType == TweenCallback.COMPLETE) {
@@ -220,6 +252,8 @@ public abstract class Entity {
 							updateNeighbors();
 						}
 					}
+
+					
 				});
 	}
 
@@ -258,4 +292,6 @@ public abstract class Entity {
 	protected void moveToFoodNeighbor(int neighborIndex) {
 		moveTo(neighbors[neighborIndex]);
 	}
+
+	
 }

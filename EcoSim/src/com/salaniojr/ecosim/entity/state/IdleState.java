@@ -33,11 +33,9 @@ public class IdleState implements State {
 			
 			if (moveOrNot == 1) {
 				entity.move();
-				System.out.println("MOVING");
 			} else {
 				stayAmount = new Random().nextInt(5) + 1;
 				stay = true;
-				System.out.println("STAY");
 			}
 		}
 	}
