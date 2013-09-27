@@ -18,7 +18,6 @@ import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.math.Vector2;
-import com.salaniojr.ecosim.entity.state.BreedState;
 import com.salaniojr.ecosim.entity.state.HuntState;
 import com.salaniojr.ecosim.entity.state.IdleState;
 import com.salaniojr.ecosim.entity.state.State;
@@ -52,10 +51,12 @@ public abstract class Entity {
 	protected boolean dying;
 
 	private BitmapFont hungerText;
-
+	
 	private boolean breeding;
+	
+	private AnimalType canEatAnimalType;
 
-	public Entity(String texturePath, AnimalType type, Vector2 position) {
+	public Entity(String texturePath, AnimalType type, Vector2 position, AnimalType canEatAnimalType) {
 		id = current_id++;
 		sprite = new Sprite(new Texture(Gdx.files.internal(texturePath)));
 		sprite.setPosition(position.x, position.y);
@@ -63,6 +64,8 @@ public abstract class Entity {
 
 		this.type = type;
 		this.neighbors = new Vector2[8];
+		
+		this.canEatAnimalType = canEatAnimalType;
 
 		initNeighbors();
 
@@ -70,6 +73,8 @@ public abstract class Entity {
 		hungerText.setColor(Color.BLUE);
 
 		hunger = new Random().nextInt(HUNGER_MAX - 1);
+		hunger = 6;
+		hungerIncreaseTime = 1;
 		breedHunger = new Random().nextInt(HUNGER_MAX - 1);
 	}
 
@@ -230,10 +235,8 @@ public abstract class Entity {
 	}
 
 	public void breed() {
-		state = new BreedState(this);
+//		state = new BreedState(this);
 	}
-
-	public abstract void searchFoodNearby();
 
 	public void setPosition(float x, float y) {
 		sprite.setPosition(x, y);
@@ -246,6 +249,10 @@ public abstract class Entity {
 		}
 
 		Vector2 newPosition = chooseNextMovePosition();
+		
+		if (newPosition == null) {
+			return;
+		}
 
 		moveTo(newPosition);
 	}
@@ -259,6 +266,10 @@ public abstract class Entity {
 				|| futureCell.getTile().getProperties().containsKey("contains")) {
 			return;
 		}
+		
+		assert !moving;
+		assert !dying;
+		assert !breeding;
 
 		moving = true;
 
@@ -274,7 +285,7 @@ public abstract class Entity {
 					public void onEvent(int eventType, BaseTween<?> source) {
 						if (eventType == TweenCallback.COMPLETE) {
 							TiledMapTileLayer mapLayer = ServiceLocator.locateMap();
-							Cell cell = mapLayer.getCell(getXinCellCoord(), getYInCellCoord());
+							Cell cell = mapLayer.getCell(Entity.this.getXinCellCoord(), Entity.this.getYInCellCoord());
 							cell.getTile().getProperties().clear();
 							cell.getTile().getProperties().put("contains", Entity.this);
 
@@ -299,10 +310,6 @@ public abstract class Entity {
 
 			Cell cell = mapLayer.getCell(getXinCellCoord(neighbors[i].x), getYInCellCoord(neighbors[i].y));
 
-			if (neighbors[i].x == 0 && neighbors[i].y == 0) {
-				System.out.println();
-			}
-
 			MapProperties properties = cell.getTile().getProperties();
 
 			if (properties.containsKey("contains") || properties.containsKey("willcontain")) {
@@ -313,7 +320,7 @@ public abstract class Entity {
 		}
 
 		if (possiblePositions.isEmpty()) {
-			return new Vector2(getX(), getY());
+			return null;
 		}
 
 		Random random = new Random();
@@ -384,6 +391,53 @@ public abstract class Entity {
 
 	public boolean isBreeding() {
 		return breeding;
+	}
+
+	public Vector2 getPosition() {
+		return new Vector2(getX(), getY());
+	}
+
+	public void searchFoodNearby() {
+		TiledMapTileLayer mapLayer = ServiceLocator.locateMap();
+		
+		Entity animal = null;
+		List<Entity> huntPosibilities = new ArrayList<Entity>();
+		List<Vector2> posPosibilities = new ArrayList<Vector2>();
+		for (int i = 0; i < neighbors.length; i++) {
+			Cell cell = mapLayer.getCell((int) (neighbors[i].x / sprite.getWidth()), (int) (neighbors[i].y / sprite.getHeight()));
+	
+			if (cell == null) {
+				continue;
+			}
+	
+			animal = (Entity) cell.getTile().getProperties().get("contains");
+	
+			if (animal != null) {
+				if (animal.getType().equals(canEatAnimalType)) {
+					huntPosibilities.add(animal);
+					posPosibilities.add(neighbors[i]);
+				}
+			} 
+		}
+		
+		if (!huntPosibilities.isEmpty()) {
+			restoreHunger();
+			
+			Random random = new Random();
+			int huntIndex = random.nextInt(huntPosibilities.size());
+			
+			Entity entity = huntPosibilities.get(huntIndex);
+			
+			Vector2 pos = posPosibilities.get(huntIndex);
+			
+			assert pos.x == entity.getPosition().x;
+			assert pos.y == entity.getPosition().y;
+			
+			entity.die();
+			moveTo(entity.getPosition());
+		} else {
+			move();
+		}
 	}
 
 }

@@ -23,6 +23,16 @@ public class Plant extends Entity {
 	public void update(float delta) {
 
 	}
+	
+	@Override
+	public float getX() {
+		return position.x;
+	}
+	
+	@Override
+	public float getY() {
+		return position.y;
+	}
 
 	protected int getYInCellCoord(float y) {
 		return (int) (y / 16);
@@ -38,6 +48,12 @@ public class Plant extends Entity {
 
 		Cell cell = mapLayer.getCell(getXinCellCoord(position.x), getYInCellCoord(position.y));
 
+		Plant plant = (Plant) cell.getTile().getProperties().get("contains");
+		
+		if (plant.equals(this)) {
+			System.out.println("same");
+		}
+		
 		StaticTiledMapTile mapTile = new StaticTiledMapTile(regions[0][0]);
 		cell.setTile(mapTile);
 	}

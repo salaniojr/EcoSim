@@ -15,8 +15,14 @@ public class HuntState implements State {
 		if (entity.isMoving()) {
 			return;
 		}
+		
+		if (entity.isHungry()) {
+			entity.searchFoodNearby();
+		} else {
+			entity.idle();
+		}
 
-		entity.searchFoodNearby();
+		
 	}
 
 }

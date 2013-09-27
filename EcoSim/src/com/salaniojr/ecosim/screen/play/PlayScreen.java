@@ -107,7 +107,7 @@ public class PlayScreen implements Screen {
 		int maxPositionIndex = availPositions.size();
 		Entity entity = null;
 		Random random = new Random();
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 2; i++) {
 			int animalType = random.nextInt(2);
 
 			int positionIndex = random.nextInt(maxPositionIndex);
@@ -142,24 +142,31 @@ public class PlayScreen implements Screen {
 
 		Vector2 position = null;
 		Random random = new Random();
+
+		position = new Vector2(2 * 16, 1 * 16);
+		availPositions.add(position);
+		position = new Vector2(1 * 16, 1 * 16);
+		availPositions.add(position);
+
 		for (int x = 0; x < (int) w / 16; x++) {
 			for (int y = 0; y < (int) h / 16; y++) {
-				position = new Vector2(x * 16, y * 16);
-				availPositions.add(position);
+
+				// availPositions.add(position);
 
 				Cell cell = new Cell();
 
-				int tx = random.nextInt(2);
-				
+				// int tx = random.nextInt(2);
+				int tx = 0;
+
 				StaticTiledMapTile staticTiledMapTile = null;
-				if (tx == 1) { //tall grass
+				if (tx == 1) { // tall grass
 					int probability = random.nextInt(2);
-					
+
 					if (probability == 0) {
 						Plant plant = new Plant(position, splitTiles);
 						entities.add(plant);
 						availPositions.remove(position);
-						
+
 						staticTiledMapTile = new StaticTiledMapTile(splitTiles[0][tx]);
 						staticTiledMapTile.getProperties().put("contains", plant);
 					} else {
@@ -168,15 +175,55 @@ public class PlayScreen implements Screen {
 				} else {
 					staticTiledMapTile = new StaticTiledMapTile(splitTiles[0][tx]);
 				}
-				
+
 				cell.setTile(staticTiledMapTile);
-				
+
 				layer.setCell(x, y, cell);
 			}
 		}
+
 		
+		addPlant(splitTiles, layer, position, -1, -1);
+		addPlant(splitTiles, layer, position, -1, 0);
+		addPlant(splitTiles, layer, position, -1, 1);
+		addPlant(splitTiles, layer, position, 1, -1);
+		
+		addPlant(splitTiles, layer, position, 1, 1);
+		addPlant(splitTiles, layer, position, 0, 1);
+		addPlant(splitTiles, layer, position, 0, -1);
+		addPlant(splitTiles, layer, position, -1, 2);
+		addPlant(splitTiles, layer, position, 0, 2);
+		addPlant(splitTiles, layer, position, 1, 2);
+		addPlant(splitTiles, layer, position, 2, 2);
+		addPlant(splitTiles, layer, position, 2, 1);
+		addPlant(splitTiles, layer, position, 2, 0);
+		addPlant(splitTiles, layer, position, 2, -1);
+		addPlant(splitTiles, layer, position, 3, 0);
+		addPlant(splitTiles, layer, position, 3, -1);
+		addPlant(splitTiles, layer, position, 3, 1);
+		addPlant(splitTiles, layer, position, 3, 2);
+		addPlant(splitTiles, layer, position, 3, 3);
+		addPlant(splitTiles, layer, position, 2, 3);
+		addPlant(splitTiles, layer, position, 1, 3);
+		addPlant(splitTiles, layer, position, 0, 3);
+		addPlant(splitTiles, layer, position, -1, 3);
+
 		layers.add(layer);
+		
+		
+		
+		
+		
 		ServiceLocator.provide(map);
+	}
+
+	private void addPlant(TextureRegion[][] splitTiles, TiledMapTileLayer layer, Vector2 position, int xCellIndex, int yCellIndex) {
+		Cell cell = layer.getCell((int) (position.x / 16 + xCellIndex), (int) (position.y / 16 + yCellIndex));
+		StaticTiledMapTile staticTiledMapTile = new StaticTiledMapTile(splitTiles[0][1]);
+		cell.setTile(staticTiledMapTile);
+		Vector2 newPos = new Vector2(position.x + (16 * xCellIndex), position.y + (16 * yCellIndex));
+		Plant plant = new Plant(newPos, splitTiles);
+		staticTiledMapTile.getProperties().put("contains", plant);
 	}
 
 	private void setFonts() {

@@ -17,8 +17,6 @@ public class IdleState implements State {
 	public void update(float delta) {
 		if (entity.isHungry()) {
 			entity.hunt();
-		} else if (entity.isOnFire()) {
-			entity.breed();
 		} else {
 			if (stay) {
 				stayAmount -= delta;
