@@ -1,42 +1,49 @@
 package com.salaniojr.ecosim.entity;
 
-import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
+import com.badlogic.gdx.math.Vector2;
 import com.salaniojr.ecosim.screen.play.ServiceLocator;
 
 public class Carnivore extends Entity {
 	private static final String CARNIVORE_TEXTURE_PATH = "data/carnivore.png";
-	
-	public Carnivore() {
-		super(CARNIVORE_TEXTURE_PATH, AnimalType.CARNIVORE);
+
+	public Carnivore(Vector2 position) {
+		super(CARNIVORE_TEXTURE_PATH, AnimalType.CARNIVORE, position);
 	}
 
 	@Override
 	public void searchFoodNearby() {
-		TiledMap map = ServiceLocator.locateMap();
-		TiledMapTileLayer mapLayer = (TiledMapTileLayer) map.getLayers().get(0);
+		TiledMapTileLayer mapLayer = ServiceLocator.locateMap();
 
+		Vector2 huntPosition = null;
+		Entity animal = null;
 		for (int i = 0; i < neighbors.length; i++) {
 			Cell cell = mapLayer.getCell((int) (neighbors[i].x / sprite.getWidth()), (int) (neighbors[i].y / sprite.getHeight()));
 
+			// is cell out of world bounds?
 			if (cell == null) {
 				continue;
 			}
 
-			AnimalType animalType = (AnimalType) cell.getTile().getProperties().get("contains");
+			animal = (Entity) cell.getTile().getProperties().get("contains");
 
-			if (animalType != null) {
-				if (animalType.equals(AnimalType.HERBIVORE)) {
-					hunger = HUNGER_MIN;
-					cell.getTile().getProperties().put("kill", true);
-					
-					moveToFoodNeighbor(i);
-				} else {
+			if (animal != null) {
+				if (animal.getType().equals(AnimalType.HERBIVORE)) {
+					huntPosition = neighbors[i];
+					break;
 				}
-			} else {
-				move();
 			}
+		}
+
+		if (huntPosition != null) {
+			idle();
+			restoreHunger();
+			animal.die();
+
+			moveTo(huntPosition);
+		} else {
+			move();
 		}
 	}
 }

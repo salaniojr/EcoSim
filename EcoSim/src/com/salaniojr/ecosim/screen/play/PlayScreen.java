@@ -17,16 +17,17 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapLayers;
-import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
+import com.badlogic.gdx.math.Vector2;
 import com.salaniojr.ecosim.entity.Carnivore;
 import com.salaniojr.ecosim.entity.Entity;
 import com.salaniojr.ecosim.entity.EntityTweenAccessor;
 import com.salaniojr.ecosim.entity.Herbivore;
+import com.salaniojr.ecosim.entity.Plant;
 
 public class PlayScreen implements Screen {
 
@@ -37,25 +38,28 @@ public class PlayScreen implements Screen {
 	private TiledMap map;
 	private OrthogonalTiledMapRenderer renderer;
 	private OrthographicCamera camera;
-	
+
 	private List<Entity> entities;
-	
+
 	private TweenManager tweenManager;
-	
+	private List<Vector2> availPositions;
+
 	@Override
 	public void show() {
-		
+		entities = new ArrayList<Entity>();
+		availPositions = new ArrayList<Vector2>();
+
 		tweenManager = ServiceLocator.locateTweenManager();
-		
+
 		setFonts();
 
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
 
-		setupEntities();
 		setupTileMap(w, h);
+		setupEntities();
 		setupCamera(w, h);
-		
+
 		renderer = new OrthogonalTiledMapRenderer(map);
 	}
 
@@ -64,10 +68,10 @@ public class PlayScreen implements Screen {
 		update(delta);
 		draw();
 	}
-	
+
 	private void update(float delta) {
 		tweenManager.update(delta);
-		
+
 		for (Entity entity : entities) {
 			entity.update(delta);
 		}
@@ -76,36 +80,21 @@ public class PlayScreen implements Screen {
 	private void draw() {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		
+
 		renderer.setView(camera);
 		renderer.render();
 		renderer.getSpriteBatch().begin();
-		
+
 		drawEntities(renderer.getSpriteBatch());
 		drawHud(renderer.getSpriteBatch());
 
 		renderer.getSpriteBatch().end();
 	}
-	
+
 	private void drawEntities(SpriteBatch spriteBatch) {
 		for (Entity entity : entities) {
 			entity.draw(spriteBatch);
 		}
-		
-		TiledMap map = ServiceLocator.locateMap();
-		TiledMapTileLayer mapLayer = (TiledMapTileLayer) map.getLayers().get(0);
-		
-		int contCount = 0;
-		for (int i = 0; i < mapLayer.getWidth(); i++) {
-			for (int j = 0; j < mapLayer.getHeight(); j++) {
-				Cell cell = mapLayer.getCell(i, j);
-				MapProperties properties = cell.getTile().getProperties();
-				if (properties.containsKey("contains")) {
-					contCount++;
-				}
-			}
-		}
-		
 	}
 
 	private void drawHud(SpriteBatch spriteBatch) {
@@ -114,70 +103,24 @@ public class PlayScreen implements Screen {
 
 	private void setupEntities() {
 		Tween.registerAccessor(Entity.class, new EntityTweenAccessor());
-		
-		entities = new ArrayList<Entity>();
-		
-		Entity carn1 = new Carnivore();
-		carn1.setPosition(1 * 16, 1 * 16);
-		Entity carn2 = new Carnivore();
-		carn2.setPosition(5 * 16, 1 * 16);
-		Entity carn3 = new Carnivore();
-		carn3.setPosition(1 * 16, 8 * 16);
-		Entity carn4 = new Carnivore();
-		carn4.setPosition(22 * 16, 19 * 16);
-		Entity carn5 = new Carnivore();
-		carn5.setPosition(10 * 16, 15 * 16);
-		Entity carn6 = new Carnivore();
-		carn6.setPosition(20 * 16, 18 * 16);
-		Entity carn7 = new Carnivore();
-		carn7.setPosition(25 * 16, 8 * 16);
-		
-		Entity herb1 = new Herbivore();
-		Entity herb2 = new Herbivore();
-		herb2.setPosition(14 * 16, 17 * 16);
-		Entity herb3 = new Herbivore();
-		herb3.setPosition(8 * 16, 9 * 16);
-		Entity herb4 = new Herbivore();
-		herb4.setPosition(2 * 16, 13 * 16);
-		Entity herb5 = new Herbivore();
-		herb5.setPosition(27 * 16, 25 * 16);
-		Entity herb6 = new Herbivore();
-		herb6.setPosition(18 * 16, 19 * 16);
-		Entity herb7 = new Herbivore();
-		herb7.setPosition(13 * 16, 10 * 16);
-		Entity herb8 = new Herbivore();
-		herb8.setPosition(17 * 16, 22 * 16);
-		Entity herb9 = new Herbivore();
-		herb9.setPosition(22 * 16, 17 * 16);
-		Entity herb10 = new Herbivore();
-		herb10.setPosition(23 * 16, 15 * 16);
-		Entity herb11 = new Herbivore();
-		herb11.setPosition(29 * 16, 12 * 16);
-		Entity herb12 = new Herbivore();
-		herb12.setPosition(3 * 16, 5 * 16);
-		
-		
-		entities.add(carn1);
-		entities.add(carn2);
-		entities.add(carn3);
-		entities.add(carn4);
-		entities.add(carn5);
-		entities.add(carn6);
-		entities.add(carn7);
-		
-		entities.add(herb1);
-		entities.add(herb2);
-		entities.add(herb3);
-		entities.add(herb4);
-		entities.add(herb5);
-		entities.add(herb6);
-		entities.add(herb7);
-		entities.add(herb8);
-		entities.add(herb9);
-		entities.add(herb10);
-		entities.add(herb11);
-		entities.add(herb12);
-		
+
+		int maxPositionIndex = availPositions.size();
+		Entity entity = null;
+		Random random = new Random();
+		for (int i = 0; i < 100; i++) {
+			int animalType = random.nextInt(2);
+
+			int positionIndex = random.nextInt(maxPositionIndex);
+
+			if (animalType == 0) {
+				entity = new Carnivore(availPositions.remove(positionIndex));
+			} else {
+				entity = new Herbivore(availPositions.remove(positionIndex));
+			}
+
+			entities.add(entity);
+			maxPositionIndex--;
+		}
 	}
 
 	private void setupCamera(float w, float h) {
@@ -197,21 +140,42 @@ public class PlayScreen implements Screen {
 
 		TiledMapTileLayer layer = new TiledMapTileLayer((int) w, (int) h, 16, 16);
 
-		for (int x = 0; x < (int) w; x++) {
-			for (int y = 0; y < (int) h; y++) {
+		Vector2 position = null;
+		Random random = new Random();
+		for (int x = 0; x < (int) w / 16; x++) {
+			for (int y = 0; y < (int) h / 16; y++) {
+				position = new Vector2(x * 16, y * 16);
+				availPositions.add(position);
+
 				Cell cell = new Cell();
-				
-				Random random = new Random();
+
 				int tx = random.nextInt(2);
 				
-				StaticTiledMapTile staticTiledMapTile = new StaticTiledMapTile(splitTiles[0][tx]);
+				StaticTiledMapTile staticTiledMapTile = null;
+				if (tx == 1) { //tall grass
+					int probability = random.nextInt(2);
+					
+					if (probability == 0) {
+						Plant plant = new Plant(position, splitTiles);
+						entities.add(plant);
+						availPositions.remove(position);
+						
+						staticTiledMapTile = new StaticTiledMapTile(splitTiles[0][tx]);
+						staticTiledMapTile.getProperties().put("contains", plant);
+					} else {
+						staticTiledMapTile = new StaticTiledMapTile(splitTiles[0][0]);
+					}
+				} else {
+					staticTiledMapTile = new StaticTiledMapTile(splitTiles[0][tx]);
+				}
+				
 				cell.setTile(staticTiledMapTile);
+				
 				layer.setCell(x, y, cell);
 			}
 		}
 		
 		layers.add(layer);
-		
 		ServiceLocator.provide(map);
 	}
 
@@ -219,7 +183,7 @@ public class PlayScreen implements Screen {
 		font = new BitmapFont();
 		font.setColor(Color.BLUE);
 	}
-	
+
 	@Override
 	public void resize(int width, int height) {
 		camera.viewportWidth = width;
@@ -240,11 +204,11 @@ public class PlayScreen implements Screen {
 
 	@Override
 	public void pause() {
-		
+
 	}
 
 	@Override
 	public void resume() {
-		
+
 	}
 }

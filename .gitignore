@@ -7,3 +7,5 @@ EcoSim-desktop/bin/data
 EcoSim-android/bin
 bin
 classes
+R.java
+.gwt-log

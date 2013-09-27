@@ -17,6 +17,8 @@ public class IdleState implements State {
 	public void update(float delta) {
 		if (entity.isHungry()) {
 			entity.hunt();
+		} else if (entity.isOnFire()) {
+			entity.breed();
 		} else {
 			if (stay) {
 				stayAmount -= delta;
@@ -24,13 +26,13 @@ public class IdleState implements State {
 					stay = false;
 					stayAmount = 0;
 				}
-				
+
 				return;
 			}
-			
+
 			Random random = new Random();
 			int moveOrNot = random.nextInt(2);
-			
+
 			if (moveOrNot == 1) {
 				entity.move();
 			} else {

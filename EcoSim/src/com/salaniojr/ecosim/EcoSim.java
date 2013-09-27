@@ -8,7 +8,6 @@ public class EcoSim extends Game {
 	@Override
 	public void create() {		
 		setScreen(new PlayScreen());
-		
 	}
 
 	@Override
