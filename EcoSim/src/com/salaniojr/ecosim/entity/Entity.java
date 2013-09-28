@@ -73,9 +73,13 @@ public abstract class Entity {
 		hungerText.setColor(Color.BLUE);
 
 		hunger = new Random().nextInt(HUNGER_MAX - 1);
-		hunger = 6;
-		hungerIncreaseTime = 1;
+//		hunger = 6;
+//		hungerIncreaseTime = 10;
 		breedHunger = new Random().nextInt(HUNGER_MAX - 1);
+		
+		TiledMapTileLayer mapLayer = ServiceLocator.locateMap();
+		Cell currentCell = mapLayer.getCell(getXinCellCoord(), getYInCellCoord());
+		currentCell.getTile().getProperties().put("contains", this);
 	}
 
 	public Entity(AnimalType animalType) {
@@ -277,8 +281,8 @@ public abstract class Entity {
 		futureCell.getTile().getProperties().put("willcontain", this);
 
 		Random random = new Random();
-		float velocity = (random.nextInt(2) + 1) * 0.5f;
-
+		float velocity = (random.nextInt(2) + 2) * 0.5f;
+		
 		Tween.to(this, EntityTweenAccessor.MOVEXY, velocity).target(newPosition.x, newPosition.y)
 				.start(ServiceLocator.locateTweenManager()).setCallback(new TweenCallback() {
 					@Override
@@ -303,8 +307,7 @@ public abstract class Entity {
 		TiledMapTileLayer mapLayer = ServiceLocator.locateMap();
 
 		for (int i = 0; i < neighbors.length; i++) {
-			if (neighbors[i].x < 0 || neighbors[i].x > Gdx.graphics.getWidth() - sprite.getWidth()
-					|| neighbors[i].y > Gdx.graphics.getHeight() - sprite.getHeight() || neighbors[i].y < 0) {
+			if (isNeighborOutOfWorldBounds(i)) {
 				continue;
 			}
 
@@ -327,6 +330,11 @@ public abstract class Entity {
 		int newPositionIndex = random.nextInt(possiblePositions.size());
 
 		return possiblePositions.get(newPositionIndex);
+	}
+
+	private boolean isNeighborOutOfWorldBounds(int neighborIndex) {
+		return neighbors[neighborIndex].x < 0 || neighbors[neighborIndex].x > Gdx.graphics.getWidth() - sprite.getWidth()
+				|| neighbors[neighborIndex].y > Gdx.graphics.getHeight() - sprite.getHeight() || neighbors[neighborIndex].y < 0;
 	}
 
 	public boolean isMoving() {

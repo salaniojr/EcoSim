@@ -21,7 +21,7 @@ public class Plant extends Entity {
 
 	@Override
 	public void update(float delta) {
-
+		
 	}
 	
 	@Override
@@ -50,11 +50,9 @@ public class Plant extends Entity {
 
 		Plant plant = (Plant) cell.getTile().getProperties().get("contains");
 		
-		if (plant.equals(this)) {
-			System.out.println("same");
-		}
+		assert plant != null && plant.equals(this);
 		
-		StaticTiledMapTile mapTile = new StaticTiledMapTile(regions[0][0]);
+		StaticTiledMapTile mapTile = new StaticTiledMapTile(regions[0][0]); //set low grass
 		cell.setTile(mapTile);
 	}
 
