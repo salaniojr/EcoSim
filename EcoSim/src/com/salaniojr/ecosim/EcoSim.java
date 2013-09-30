@@ -1,13 +1,13 @@
 package com.salaniojr.ecosim;
 
 import com.badlogic.gdx.Game;
-import com.salaniojr.ecosim.screen.play.PlayScreen;
+import com.salaniojr.ecosim.screen.SplashScreen;
 
 public class EcoSim extends Game {
 	
 	@Override
 	public void create() {		
-		setScreen(new PlayScreen());
+		setScreen(new SplashScreen(this));
 	}
 
 	@Override

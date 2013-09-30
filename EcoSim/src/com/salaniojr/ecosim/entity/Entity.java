@@ -69,7 +69,7 @@ public abstract class Entity {
 
 		initNeighbors();
 
-		hungerText = ServiceLocator.locateFont(12);
+		hungerText = ServiceLocator.locateFont("American Captain.ttf", 10);
 		hungerText.setColor(Color.BLUE);
 
 		hunger = new Random().nextInt(HUNGER_MAX - 1);

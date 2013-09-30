@@ -29,9 +29,9 @@ public class ServiceLocator {
 		return tweenManager;
 	}
 
-	public static BitmapFont locateFont(int size) {
-		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("data/American Captain.ttf"));
-		BitmapFont font = generator.generateFont(10); // font size in pixels
+	public static BitmapFont locateFont(String fontName, int size) {
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("data/" + fontName));// ""));
+		BitmapFont font = generator.generateFont(size); // font size in pixels
 		generator.dispose();
 
 		return font;

@@ -7,9 +7,9 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.salaniojr.ecosim.screen.LoadProgress;
 
 public class PlayScreen implements Screen {
 
@@ -24,9 +24,9 @@ public class PlayScreen implements Screen {
 	
 	@Override
 	public void show() {
-		Texture mapTexture = new Texture(Gdx.files.internal("data/ecosim_tiles.png"));
-		world = new World(mapTexture);
+		world = new World();
 		world.init();
+
 		spriteBatch = world.getTileRendererSpriteBatch();
 		
 		setFonts();
@@ -104,5 +104,9 @@ public class PlayScreen implements Screen {
 	@Override
 	public void resume() {
 
+	}
+
+	public void loadData(LoadProgress progress) {
+		
 	}
 }

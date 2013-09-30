@@ -33,10 +33,6 @@ public class World {
 	private List<Entity> entities;
 	private List<Vector2> availPositions;
 
-	public World(Texture mapTexture) {
-		this.mapTexture = mapTexture;
-	}
-
 	public TiledMap getMap() {
 		return map;
 	}
@@ -59,6 +55,7 @@ public class World {
 	}
 
 	private void setupTileMap(float w, float h) {
+		mapTexture = new Texture(Gdx.files.internal("data/ecosim_tiles.png"));
 		TextureRegion[][] splitTiles = TextureRegion.split(mapTexture, 16, 16);
 
 		map = new TiledMap();
@@ -68,7 +65,7 @@ public class World {
 
 		Vector2 position = null;
 		Random random = new Random();
-
+		
 		for (int x = 0; x < (int) w / 16; x++) {
 			for (int y = 0; y < (int) h / 16; y++) {
 				position = new Vector2(x * 16, y * 16);
@@ -113,6 +110,7 @@ public class World {
 		int maxPositionIndex = availPositions.size();
 		Entity entity = null;
 		Random random = new Random();
+		
 		for (int i = 0; i < 150; i++) {
 			int animalType = random.nextInt(2);
 
